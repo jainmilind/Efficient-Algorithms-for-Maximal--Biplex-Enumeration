@@ -4,7 +4,7 @@
 using namespace std;
 
 
-Graph::Graph(vector<vector<int>> &adj, int left_vertices, int k){
+Graph::Graph(vector<set<int>> &adj, int left_vertices, int k){
     this -> adj = adj;
     this -> left_vertices = left_vertices;
     this -> k = k;
@@ -64,27 +64,33 @@ vector<int> Graph::initial_soultion(){
 
 }
 
-void Graph::partition_R(vector<int> &L, vector<int> &R, int v, vector<int> &R_keep, vector<int> &R1, vector<int> &R2, vector<vector<int>> &H_adj){
+void Graph::partition_R(vector<int> &L, vector<int> &R, int v, vector<int> &R_keep, vector<int> &R1, vector<int> &R2){
     
-    for(auto u : H_adj[v]){
-        R_keep.push_back(u);
-    }
-
     for(auto u : R){
-        if(find(R_keep.begin(), R_keep.end(), u) != R.end())
-            continue;
-        if(H_adj[u].size() == k + 1)
-            R2.push_back(u);
-        else
-            R1.push_back(u);
+        if(adj[v].count(u))
+            R_keep.push_back(u);
+        else{
+            int cnt = 0;
+            for(auto v : L){
+                if(!adj[u].count(v))
+                    cnt++;
+            }
+            if(cnt < k)
+                R1.push_back(v);
+            else
+                R2.push_back(v);
+        }
     }
-
-
 }
 
-vector<vector<int>> Graph::enumAlmostSat(vector<int> &L, vector<int> &R, int v,  vector<vector<int>> &H_adj){
+/**
+L -> Left vertices in the previous solution
+R -> Right vertices in the previous solution
+v -> left vertex to add and find local solutions of
+*/
+vector<vector<int>> Graph::enumAlmostSat(vector<int> &L, vector<int> &R, int v){
     
     vector<int> R_keep, R1, R2;
-    partition_R(L, R, v, R_keep, R1, R2, H_adj);
+    partition_R(L, R, v, R_keep, R1, R2);
 
 }
