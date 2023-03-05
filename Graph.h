@@ -17,5 +17,6 @@ class Graph{
     vector<int> initial_soultion();
     vector<vector<int>> enumAlmostSat(vector<int>&, vector<int>&, int);
     void partition_R(vector<int>&, vector<int>&, int, vector<int>&, vector<int>&, vector<int>&);    
+    bool is_local_solution(vector<int>&, vector<int>&, vector<int>&, vector<int>&, int);
 };
 

@@ -126,9 +126,39 @@ void enumerate_r_enum_subset(vector<int>& R1, vector<int>& R2, int k, vector<vec
     }
 }
 
-
-bool is_local_solution(vector<int> &L, vector<int> &R, vector<int> &L_sub, vector<int> &R_sub, int v){
+// Not O(|L|*|R|)
+bool Graph::is_local_solution(vector<int> &L, vector<int> &R, vector<int> &L_sub, vector<int> &R_sub, int v){
     
+    for(auto l : L){
+        auto itr = lower_bound(L_sub.begin(), L_sub.end(), l);
+        if(itr != L_sub.end() && *itr == l){
+            continue;
+        }
+        int connections = 0;
+        for(auto v : R_sub){
+            if(adj[l].count(v))
+                connections++;
+        }
+
+        if(R_sub.size() - connections <= k)
+            return false;
+    }
+
+    for(auto r : R){
+        auto itr = lower_bound(R_sub.begin(), R_sub.end(), r);
+        if(itr != L_sub.end() && *itr == r)
+            continue;
+        int connections = adj[r].count(v);
+        for(auto l : L_sub){
+            if(adj[r].count(l))
+                connections++;
+        }
+
+        if(L_sub.size() + 1 - connections <= k)
+            return false;
+    }
+
+    return true;
 }
 
 /**
@@ -149,6 +179,8 @@ vector<vector<int>> Graph::enumAlmostSat(vector<int>& L, vector<int>& R, int v) 
     vector<vector<int>> r1_powset, r2_powset;
     int pos[k+2];
     enumerate_r_enum_subset(R1, R2, k, r1_powset, r2_powset, pos);
+
+    vector<vector<int>> local_solutions;
 
     for(auto r1_subset : r1_powset){
         
@@ -192,7 +224,9 @@ vector<vector<int>> Graph::enumAlmostSat(vector<int>& L, vector<int>& R, int v) 
                 set_difference(L.begin(), L.end(), l_remo_subset.begin(), l_remo_subset.end(), back_inserter(l_subset));
 
                 if(is_local_solution(L, R, l_subset, r1_subset, v)){
-
+                    // Prune all supersets of L_remo_subset
+                    local_solutions.push_back(vector<int>());
+                    set_union(l_subset.begin(), l_subset.end(), r_subset.begin(), r_subset.end(), back_inserter(local_solutions.back()));
                 }
 
             }
@@ -200,6 +234,5 @@ vector<vector<int>> Graph::enumAlmostSat(vector<int>& L, vector<int>& R, int v) 
         }
     }
 
-
-
+    return local_solutions;
 }
