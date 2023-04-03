@@ -9,10 +9,10 @@ using namespace std;
 // #define dbg(x...) debug_out(#x, x)
 
 int main() {
-    int n; 
+    int n;
     cout << "Enter number of vertices" << endl;
     cin >> n;
-    
+
     int left_cnt;
     cout << "Enter number of left vertices" << endl;
     cin >> left_cnt;
@@ -29,17 +29,21 @@ int main() {
         stringstream st(s);
 
         st >> c;
-        int fst = stoi(c); 
-        while (st >> c) 
+        int fst = stoi(c);
+        while (st >> c)
             adj[fst].insert(stoi(c));
     }
 
     Graph g(adj, left_cnt, K);
     auto ans = g.iTraversal();
-    for (auto &v : ans) {
+    cout << "Number of answers" << ans.size() << endl;
+    for (auto v : ans) {
+        if (!g.is_kbiplex(v)) {
+            cout << "Mar jao laude ";
+        }
         for (int i = 0; i < n; ++i) {
             if (v[i]) {
-                cout << i << "&";
+                cout << i << " & ";
             }
         }
         cout << '\n';
