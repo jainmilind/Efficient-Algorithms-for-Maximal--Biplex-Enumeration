@@ -35,5 +35,13 @@ int main() {
     }
 
     Graph g(adj, left_cnt, K);
-    dbg(g.btraversal());
+    auto ans = g.iTraversal();
+    for (auto &v : ans) {
+        for (int i = 0; i < n; ++i) {
+            if (v[i]) {
+                cout << i << "&";
+            }
+        }
+        cout << '\n';
+    }
 }

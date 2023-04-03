@@ -20,6 +20,8 @@ public:
     vector<bool> initial_soultion();
     vector<bool> extendToMax(vector<int>&, vector<int>&);
     void ThreeStep(vector<bool>&, set<vector<bool>>&);
-    set<vector<bool>> btraversal();
+    void iThreeStep(vector<bool>&, set<vector<bool>>&);
+    set<vector<bool>> bTraversal();
+    set<vector<bool>> iTraversal();
 };
 

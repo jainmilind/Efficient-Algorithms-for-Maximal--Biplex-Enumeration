@@ -77,13 +77,7 @@ vector<bool> Graph::initial_soultion() {
 
 // Not O(|L|*|R|)
 // TODO: use set minus to make it O(L * R)
-bool Graph::is_local_solution(vector<int>& L, vector<int>& R, vector<int>& L_sub, vector<int>& R_sub, vector<int>&R2_rem, int v) {
-    dbg("inside is_local_sol");
-    dbg(L);
-    dbg(R);
-    dbg(L_sub);
-    dbg(R_sub);
-    dbg(v);
+bool Graph::is_local_solution(vector<int>& L, vector<int>& R, vector<int>& L_sub, vector<int>& R_sub, vector<int>& R2_rem, int v) {
     for (auto l : L) {
         auto itr = lower_bound(L_sub.begin(), L_sub.end(), l);
         if (itr != L_sub.end() && *itr == l)
@@ -94,7 +88,7 @@ bool Graph::is_local_solution(vector<int>& L, vector<int>& R, vector<int>& L_sub
             if (adj[l].count(v))
                 connections++;
         }
-        
+
         if ((int)R_sub.size() - connections <= k)
             return false;
     }
@@ -109,7 +103,6 @@ bool Graph::is_local_solution(vector<int>& L, vector<int>& R, vector<int>& L_sub
                 connections++;
         }
 
-        dbg(r, connections);
         if ((int)L_sub.size() + 1 - connections <= k)
             return false;
     }
@@ -162,11 +155,8 @@ void enumerate_r_enum_subset(vector<int>& R1, vector<int>& R2, int k, vector<vec
     now.clear();
     generate_all_subset(0, 0, k, R2, all_subset_r2);
 
-    /* Commented because they will be sorted by size anyway **/
     sort(all_subset_r1.begin(), all_subset_r1.end(), [](auto& a, auto& b) {return a.size() < b.size(); });
     sort(all_subset_r2.begin(), all_subset_r2.end(), [](auto& a, auto& b) {return a.size() < b.size(); });
-    dbg(R1, all_subset_r1);
-    dbg(R2, all_subset_r2);
 
     //pos[i] gives the index of the first subset of r2 with size i.
     pos[0] = 0;
@@ -193,9 +183,6 @@ vector<vector<int>> Graph::enumAlmostSat(vector<int>& L, vector<int>& R, int v) 
     vector<int> R_keep, R1, R2;
     partition_R(L, R, v, R_keep, R1, R2);
 
-    dbg(R_keep);
-    dbg(R1);
-    dbg(R2);
     vector<vector<int>> r1_powset, r2_powset;
     vector<int> pos(k + 2, -1);
     enumerate_r_enum_subset(R1, R2, k, r1_powset, r2_powset, pos);
@@ -208,9 +195,6 @@ vector<vector<int>> Graph::enumAlmostSat(vector<int>& L, vector<int>& R, int v) 
         }
         i = j;
     }
-    dbg(pos);
-    for (int i = 0; i < r2_powset.size(); ++i)
-        dbg(i, r2_powset[i]);
     cout << endl;
     vector<vector<int>> local_solutions;
 
@@ -227,8 +211,6 @@ vector<vector<int>> Graph::enumAlmostSat(vector<int>& L, vector<int>& R, int v) 
             start = pos[size2];
             end = pos[size2 + 1];
         }
-        dbg(r1_subset, size1, size2);
-        dbg(start, end);
 
         for (int i = start; i < end; ++i) {
             assert(r2_powset.size() > i);
@@ -238,9 +220,6 @@ vector<vector<int>> Graph::enumAlmostSat(vector<int>& L, vector<int>& R, int v) 
             set_union(r1_subset.begin(), r1_subset.end(), r2_subset.begin(), r2_subset.end(), back_inserter(r_enum_subset));
             set_union(R_keep.begin(), R_keep.end(), r_enum_subset.begin(), r_enum_subset.end(), back_inserter(r_subset));
             set_difference(R2.begin(), R2.end(), r2_subset.begin(), r2_subset.end(), back_inserter(r2_rem));
-            dbg(r_enum_subset);
-            dbg(r_subset);
-            dbg(r2_rem);
 
             vector<int> L_remo;
             for (auto v : L) {
@@ -252,33 +231,29 @@ vector<vector<int>> Graph::enumAlmostSat(vector<int>& L, vector<int>& R, int v) 
                 }
             }
 
-            dbg(L_remo);
             vector<vector<int>> l_remo_powset;
             // We generate susbsets of L_remo with size less than R''
             generate_all_subset(0, 0, r2_subset.size(), L_remo, l_remo_powset);
-            dbg(l_remo_powset);
 
             for (auto& l_remo_subset : l_remo_powset) {
 
                 // Pruning all supersets of L_remo_subset
-                // bool seen = false;
-                // for (auto& cur : local_solutions) {
-                //     vector<int> temp;
-                //     set_intersection(cur.begin(), cur.end(), l_remo_subset.begin(), l_remo_subset.end(), back_inserter(temp));
-                //     if (temp == cur) {
-                //         seen = true;
-                //         break;
-                //     }
-                // }
+                bool skip = false;
+                for (auto& cur : local_solutions) {
+                    vector<int> temp;
+                    set_intersection(cur.begin(), cur.end(), l_remo_subset.begin(), l_remo_subset.end(), back_inserter(temp));
+                    if (temp == cur) {
+                        skip = true;
+                        break;
+                    }
+                }
 
-                // if (seen) continue;
+                if (skip) continue;
 
                 vector<int> l_subset;
                 set_difference(L.begin(), L.end(), l_remo_subset.begin(), l_remo_subset.end(), back_inserter(l_subset));
 
-                dbg(l_subset);
                 if (is_local_solution(L, R, l_subset, r_subset, r2_rem, v)) {
-                    dbg("Nice local solution boi");
                     local_solutions.push_back(vector<int>());
                     set_union(l_subset.begin(), l_subset.end(), r_subset.begin(), r_subset.end(), back_inserter(local_solutions.back()));
                     local_solutions.back().push_back(v);
@@ -289,7 +264,6 @@ vector<vector<int>> Graph::enumAlmostSat(vector<int>& L, vector<int>& R, int v) 
             }
 
         }
-        dbg(local_solutions);
     }
 
     return local_solutions;
@@ -318,7 +292,6 @@ vector<bool> Graph::extendToMax(vector<int>& L_loc, vector<int>& R_loc) {
 
 void Graph::ThreeStep(vector<bool>& h0, set<vector<bool>>& ans) {
     // V(G) / V(H)
-    dbg(h0, ans);
     vector<int> v_diff;
     vector<int> L, R;
     for (int i = 0; i < size; ++i) {
@@ -330,7 +303,6 @@ void Graph::ThreeStep(vector<bool>& h0, set<vector<bool>>& ans) {
             else R.push_back(i);
         }
     }
-    dbg(v_diff);
     for (int v : v_diff) {
         for (auto& H_loc : enumAlmostSat(L, R, v)) {
             vector<int> L_loc, R_loc;
@@ -342,7 +314,6 @@ void Graph::ThreeStep(vector<bool>& h0, set<vector<bool>>& ans) {
             vector<bool> H_max = extendToMax(L_loc, R_loc);
 
             if (!ans.count(H_max)) {
-                cout << H_max << endl;
                 ans.insert(H_max);
                 ThreeStep(H_max, ans);
             }
@@ -350,13 +321,71 @@ void Graph::ThreeStep(vector<bool>& h0, set<vector<bool>>& ans) {
     }
 }
 
-set<vector<bool>> Graph::btraversal() {
+set<vector<bool>> Graph::bTraversal() {
     vector<bool> h0 = initial_soultion();
 
     set<vector<bool>> ans;
     ans.insert(h0);
-    cout << "h0 " << h0 << endl;
     ThreeStep(h0, ans);
+
+    return ans;
+}
+
+void Graph::iThreeStep(vector<bool>& h0, set<vector<bool>>& ans) {
+    vector<int> v_diff;
+    vector<int> L, R;
+    for (int i = 0; i < size; ++i) {
+        if (h0[i] != true and i < left_vertices)
+            v_diff.push_back(i);
+        else {
+            if (i < this->left_vertices)
+                L.push_back(i);
+            else R.push_back(i);
+        }
+    }
+
+    for (int v : v_diff) {
+        for (auto& H_loc : enumAlmostSat(L, R, v)) {
+            vector<bool> h_loc_bool(size);
+            vector<int> L_loc, R_loc;
+            for (int i : H_loc) {
+                h_loc_bool[i] = 1;
+                if (i < this->left_vertices)
+                    L_loc.push_back(i);
+                else R_loc.push_back(i);
+            }
+
+            bool skip = false;
+            vector<int> r_diff;
+            set_difference(R.begin(), R.end(), H_loc.begin(), H_loc.end(), back_inserter(r_diff));
+            for (int u : r_diff) {
+                h_loc_bool[u] = 1;
+                if (is_kbiplex(h_loc_bool)) {
+                    skip = true;
+                    break;
+                }
+                h_loc_bool[u] = 0; 
+            }
+
+            if (skip)
+                continue;
+
+            vector<bool> H_max = extendToMax(L_loc, R_loc);
+
+            if (!ans.count(H_max)) {
+                ans.insert(H_max);
+                iThreeStep(H_max, ans);
+            }
+        }
+    }
+}
+
+set<vector<bool>> Graph::iTraversal() {
+    vector<bool> h0 = initial_soultion();
+
+    set<vector<bool>> ans;
+    ans.insert(h0);
+    iThreeStep(h0, ans);
 
     return ans;
 }
