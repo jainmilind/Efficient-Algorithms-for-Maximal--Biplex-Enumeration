@@ -21,9 +21,9 @@ int main() {
     cout << "Enter K" << endl;
     cin >> K;
 
-    getchar();
     vector<set<int>> adj(n);
 
+    getchar();
     for (int i = 0; i < n; ++i) {
         string s, c; getline(cin, s);
         stringstream st(s);
