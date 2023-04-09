@@ -10,7 +10,7 @@ template <typename T> void debug_out(string s, T t) { cout << "[" << s << ": " <
 template <typename T, typename... U> void debug_out(string s, T t, U... u) { int w = 0, c = 0; while (w < (int)s.size()) { if (s[w] == '(') c++; if (s[w] == ')') c--; if (!c and s[w] == ',') break; w++; } cout << "[" << s.substr(0, w) << ": " << t << "] "; debug_out(s.substr(w + 2, (int)s.size() - w - 1), u...); }
 #define dbg(x...) debug_out(#x, x)
 
-const int LIM = 1000;
+const int LIM = 10000;
 
 Graph::Graph(vector<set<int>>& adj, int left_vertices, int k) {
     this->adj = adj;
@@ -260,16 +260,16 @@ vector<vector<int>> Graph::enumAlmostSat(vector<int>& L, vector<int>& R, int v) 
             for (auto& l_remo_subset : l_remo_powset) {
 
                 // Pruning all supersets of L_remo_subset
-                // bool skip = false;
-                // for (auto& cur : local_solutions) {
-                //     vector<int> temp;
-                //     set_intersection(cur.begin(), cur.end(), l_remo_subset.begin(), l_remo_subset.end(), back_inserter(temp));
-                //     if (temp == cur) {
-                //         skip = true;
-                //         break;
-                //     }
-                // }
-                // if (skip) continue;
+                bool skip = false;
+                for (auto& cur : local_solutions) {
+                    vector<int> temp;
+                    set_intersection(cur.begin(), cur.end(), l_remo_subset.begin(), l_remo_subset.end(), back_inserter(temp));
+                    if (temp == cur) {
+                        skip = true;
+                        break;
+                    }
+                }
+                if (skip) continue;
 
                 vector<int> l_subset;
                 set_difference(L.begin(), L.end(), l_remo_subset.begin(), l_remo_subset.end(), back_inserter(l_subset));
@@ -277,11 +277,9 @@ vector<vector<int>> Graph::enumAlmostSat(vector<int>& L, vector<int>& R, int v) 
                 if (is_local_solution(L, R, l_subset, r_subset, r_enum_subset, r2_subset, v)) {
                     local_solutions.push_back(vector<int>());
                     set_union(l_subset.begin(), l_subset.end(), r_subset.begin(), r_subset.end(), back_inserter(local_solutions.back()));
-                    local_solutions.back().push_back(v);
-                    // TODO: Use insert to make it O(n)
-                    sort(local_solutions.back().begin(), local_solutions.back().end());
-                    vector<bool> temp(size);
-                    for (int i : local_solutions.back()) temp[i] = 1;
+                    // local_solutions.back().push_back(v);
+                    // sort(local_solutions.back().begin(), local_solutions.back().end());
+                    local_solutions.back().insert(upper_bound(local_solutions.back().begin(), local_solutions.back().end(), v), v);
                 }
             }
 
@@ -353,7 +351,7 @@ set<vector<bool>> Graph::bTraversal() {
     return ans;
 }
 
-void print(vector<bool> &a) {
+void print(vector<bool>& a) {
     for (int i = 0; i < a.size(); ++i) {
         if (a[i]) {
             cout << i << "&";
@@ -363,7 +361,7 @@ void print(vector<bool> &a) {
 }
 
 void Graph::iThreeStep(vector<bool>& h0, set<vector<bool>>& ans) {
-    if(ans.size() == LIM) return;
+    if (ans.size() == LIM) return;
     vector<int> v_diff;
     vector<int> L, R;
     for (int i = 0; i < size; ++i) {
@@ -412,7 +410,7 @@ void Graph::iThreeStep(vector<bool>& h0, set<vector<bool>>& ans) {
                 // cout << "sol here: " << H_max << endl;
                 print(H_max);
                 ans.insert(H_max);
-                if (ans.size() == LIM) 
+                if (ans.size() == LIM)
                     return;
                 iThreeStep(H_max, ans);
             }
