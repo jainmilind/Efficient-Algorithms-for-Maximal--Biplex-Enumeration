@@ -84,7 +84,7 @@ iTraversal::iTraversal(int **Graph, int *degree, int Graph_size, int Bipartite_i
         G_temp4[i] = 0;
         // str_list[i] = string(itoa(i, temp_char, 10)) + "&";
         sprintf(temp_char, "%d", i);
-        str_list[i] = temp_char + std::string(" & ");
+        str_list[i] = temp_char + std::string("&");
         if(i<Bipartite_index&& degree[i]>(Graph_size-Bipartite_index-Epsilon)){
             inital=false;
         }

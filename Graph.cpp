@@ -10,7 +10,7 @@ template <typename T> void debug_out(string s, T t) { cout << "[" << s << ": " <
 template <typename T, typename... U> void debug_out(string s, T t, U... u) { int w = 0, c = 0; while (w < (int)s.size()) { if (s[w] == '(') c++; if (s[w] == ')') c--; if (!c and s[w] == ',') break; w++; } cout << "[" << s.substr(0, w) << ": " << t << "] "; debug_out(s.substr(w + 2, (int)s.size() - w - 1), u...); }
 #define dbg(x...) debug_out(#x, x)
 
-
+const int LIM = 1000;
 
 Graph::Graph(vector<set<int>>& adj, int left_vertices, int k) {
     this->adj = adj;
@@ -21,6 +21,7 @@ Graph::Graph(vector<set<int>>& adj, int left_vertices, int k) {
 }
 
 // boolean array of taken
+// * O()
 bool Graph::is_kbiplex(vector<bool>& solution) {
 
     int cnt_left_solution = 0;
@@ -80,7 +81,7 @@ vector<bool> Graph::initial_soultion() {
 // Not O(|L|*|R|)
 // TODO: use set minus to make it O(L * R)
 bool Graph::is_local_solution(vector<int>& L, vector<int>& R, vector<int>& L_sub, vector<int>& R_sub, vector<int>& R_enum_sub, vector<int>& R2_sub, int v) {
-    
+
     vector<int> L_rem, R_rem;
     set_difference(L.begin(), L.end(), L_sub.begin(), L_sub.end(), back_inserter(L_rem));
     set_difference(R.begin(), R.end(), R_sub.begin(), R_sub.end(), back_inserter(R_rem));
@@ -89,44 +90,44 @@ bool Graph::is_local_solution(vector<int>& L, vector<int>& R, vector<int>& L_sub
 
     vector<int> R_k_disc;
 
-    for(auto r : R2_sub){
+    for (auto r : R2_sub) {
         int connections = 0;
-        for(auto l : L_sub){
-            if(adj[l].count(r))
+        for (auto l : L_sub) {
+            if (adj[l].count(r))
                 connections++;
         }
         int disconnections = (int)L_sub.size() + 1 - connections;
-        if(disconnections > k)
+        if (disconnections > k)
             return false;
 
-        if(disconnections == k)
+        if (disconnections == k)
             R_k_disc.push_back(r);
     }
 
     // dbg(R_k_disc);
 
-    for(auto l : L_rem){
+    for (auto l : L_rem) {
         bool flag = true;
-        for(auto r : R_k_disc){
-            if(!adj[l].count(r)){
+        for (auto r : R_k_disc) {
+            if (!adj[l].count(r)) {
                 flag = false;
                 break;
             }
         }
-        if(flag)
+        if (flag)
             return false;
     }
 
-    if(R_enum_sub.size() == k)
+    if (R_enum_sub.size() == k)
         return true;
-    
-    for(auto r : R_rem){
+
+    for (auto r : R_rem) {
         int connections = 0;
-        for(auto l : L_sub){
-            if(adj[l].count(r))
+        for (auto l : L_sub) {
+            if (adj[l].count(r))
                 connections++;
         }
-        if((int)L_sub.size() + 1 - connections <= k)
+        if ((int)L_sub.size() + 1 - connections <= k)
             return false;
     }
 
@@ -259,72 +260,34 @@ vector<vector<int>> Graph::enumAlmostSat(vector<int>& L, vector<int>& R, int v) 
             for (auto& l_remo_subset : l_remo_powset) {
 
                 // Pruning all supersets of L_remo_subset
-                bool skip = false;
-                for (auto& cur : local_solutions) {
-                    vector<int> temp;
-                    set_intersection(cur.begin(), cur.end(), l_remo_subset.begin(), l_remo_subset.end(), back_inserter(temp));
-                    if (temp == cur) {
-                        skip = true;
-                        break;
-                    }
-                }
-                if (skip) continue;
+                // bool skip = false;
+                // for (auto& cur : local_solutions) {
+                //     vector<int> temp;
+                //     set_intersection(cur.begin(), cur.end(), l_remo_subset.begin(), l_remo_subset.end(), back_inserter(temp));
+                //     if (temp == cur) {
+                //         skip = true;
+                //         break;
+                //     }
+                // }
+                // if (skip) continue;
 
                 vector<int> l_subset;
                 set_difference(L.begin(), L.end(), l_remo_subset.begin(), l_remo_subset.end(), back_inserter(l_subset));
 
-                /*DELETE begin*/
-                vector<bool> now(size);
-                for (int i : l_subset) now[i] = 1;
-                for (int i : r_subset) now[i] = 1;
-                now[v] = 1;
-
-                if (is_kbiplex(now)) {
-                    local_solutions.push_back(vector<int>());
-                    set_union(l_subset.begin(), l_subset.end(), r_subset.begin(), r_subset.end(), back_inserter(local_solutions.back()));
-                    local_solutions.back().push_back(v);
-                    // TODO Use insert to make it O(n)
-                    sort(local_solutions.back().begin(), local_solutions.back().end());
-                }
-                /*DELETE end*/
-                
-                // /*
                 if (is_local_solution(L, R, l_subset, r_subset, r_enum_subset, r2_subset, v)) {
                     local_solutions.push_back(vector<int>());
                     set_union(l_subset.begin(), l_subset.end(), r_subset.begin(), r_subset.end(), back_inserter(local_solutions.back()));
                     local_solutions.back().push_back(v);
-                    // TODO Use insert to make it O(n)
+                    // TODO: Use insert to make it O(n)
                     sort(local_solutions.back().begin(), local_solutions.back().end());
                     vector<bool> temp(size);
                     for (int i : local_solutions.back()) temp[i] = 1;
-                    if (!is_kbiplex(temp)) {
-                        cout  << "OK VREO" << " " << temp << endl;
-                    }
                 }
-                // */
             }
 
         }
     }
 
-    /*DELETE begin*/
-    // vector<vector<int>> new_local;
-    // for (int i = 0; i < local_solutions.size(); ++i) {
-    //     bool take = true;
-    //     for (int j = 0; j < local_solutions.size(); ++j) {
-    //         if (i == j) continue;
-    //         vector<int> temp;
-    //         set_intersection(local_solutions[i].begin(), local_solutions[i].end(), local_solutions[j].begin(), local_solutions[j].end(), back_inserter(temp));
-    //         if (temp == local_solutions[i]) {
-    //             take = false;
-    //             break;
-    //         }
-    //     }
-    //     if (take) new_local.push_back(local_solutions[i]);
-    // }
-    // local_solutions = new_local;
-    /*DELETE end*/
-    
     return local_solutions;
 }
 
@@ -390,7 +353,17 @@ set<vector<bool>> Graph::bTraversal() {
     return ans;
 }
 
+void print(vector<bool> &a) {
+    for (int i = 0; i < a.size(); ++i) {
+        if (a[i]) {
+            cout << i << "&";
+        }
+    }
+    cout << '\n';
+}
+
 void Graph::iThreeStep(vector<bool>& h0, set<vector<bool>>& ans) {
+    if(ans.size() == LIM) return;
     vector<int> v_diff;
     vector<int> L, R;
     for (int i = 0; i < size; ++i) {
@@ -435,9 +408,12 @@ void Graph::iThreeStep(vector<bool>& h0, set<vector<bool>>& ans) {
 
             vector<bool> H_max = extendToMax(L_loc, R_loc);
 
-            if (!ans.count(H_max)) {
-                cout << "sol here: " << H_max << endl;
+            if (!ans.count(H_max) and ans.size() < LIM) {
+                // cout << "sol here: " << H_max << endl;
+                print(H_max);
                 ans.insert(H_max);
+                if (ans.size() == LIM) 
+                    return;
                 iThreeStep(H_max, ans);
             }
         }
@@ -449,7 +425,8 @@ set<vector<bool>> Graph::iTraversal() {
 
     set<vector<bool>> ans;
     ans.insert(h0);
-    cout << "initial here: " << h0 << endl;
+    print(h0);
+    // cout << "initial here: " << h0 << endl;
     iThreeStep(h0, ans);
 
     return ans;

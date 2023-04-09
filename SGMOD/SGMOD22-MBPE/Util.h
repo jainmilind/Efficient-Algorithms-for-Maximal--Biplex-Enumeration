@@ -31,7 +31,7 @@ int Util::ReadGraph(string dataset_path, int**& Graph, int*& degree, int& bipart
     bool first = true;
 
     read.get(a);
-    // read.get(a);
+    read.get(a);
     for (int i = 0; i < graph_size; ++i) {
         string s, c; getline(read, s);
         stringstream st(s);
@@ -47,9 +47,6 @@ int Util::ReadGraph(string dataset_path, int**& Graph, int*& degree, int& bipart
         for (int i = 0; i < temp.size(); ++i)
             temp_arr[i] = temp[i];
 
-        cout << "Neighbour of " << i << " are";
-        for (int i : temp) cout << i << ' ';
-        cout << endl; 
         degree[fst] = temp.size();
         Graph[fst] = temp_arr;
     }

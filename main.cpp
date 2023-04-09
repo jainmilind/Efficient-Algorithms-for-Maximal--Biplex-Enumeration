@@ -8,19 +8,17 @@ using namespace std;
 // template <typename T, typename... U> void debug_out(string s, T t, U... u) { int w = 0, c = 0; while (w < (int)s.size()) { if (s[w] == '(') c++; if (s[w] == ')') c--; if (!c and s[w] == ',') break; w++; } cout << "[" << s.substr(0, w) << ": " << t << "] "; debug_out(s.substr(w + 2, (int)s.size() - w - 1), u...); }
 // #define dbg(x...) debug_out(#x, x)
 
-int main() {
+int main(int c, char* argv[]) {
     int n;
-    cout << "Enter number of vertices" << endl;
     cin >> n;
 
     int left_cnt;
-    cout << "Enter number of left vertices" << endl;
     cin >> left_cnt;
 
-    int K;
-    cout << "Enter K" << endl;
-    cin >> K;
+    int M;
+    cin >> M;
 
+    int K = atoi(argv[1]);
     vector<set<int>> adj(n);
 
     getchar();
@@ -35,17 +33,18 @@ int main() {
     }
 
     Graph g(adj, left_cnt, K);
+     time_t s1 = clock();
     auto ans = g.iTraversal();
-    cout << "Number of answers" << ans.size() << endl;
-    for (auto v : ans) {
-        if (!g.is_kbiplex(v)) {
-            cout << "Mar jao laude ";
-        }
-        for (int i = 0; i < n; ++i) {
-            if (v[i]) {
-                cout << i << " & ";
-            }
-        }
-        cout << '\n';
-    }
+    time_t s2 = clock();
+    cout<<"Running Time: "<<(double)(s2-s1)<<"ms"<<endl;
+
+    // cout << "Number of answers" << ans.size() << endl;
+    // for (auto v : ans) {
+    //     for (int i = 0; i < n; ++i) {
+    //         if (v[i]) {
+    //             cout << i << "&";
+    //         }
+    //     }
+    //     cout << '\n';
+    // }
 }
