@@ -260,16 +260,16 @@ vector<vector<int>> Graph::enumAlmostSat(vector<int>& L, vector<int>& R, int v) 
             for (auto& l_remo_subset : l_remo_powset) {
 
                 // Pruning all supersets of L_remo_subset
-                bool skip = false;
-                for (auto& cur : local_solutions) {
-                    vector<int> temp;
-                    set_intersection(cur.begin(), cur.end(), l_remo_subset.begin(), l_remo_subset.end(), back_inserter(temp));
-                    if (temp == cur) {
-                        skip = true;
-                        break;
-                    }
-                }
-                if (skip) continue;
+                // bool skip = false;
+                // for (auto& cur : local_solutions) {
+                //     vector<int> temp;
+                //     set_intersection(cur.begin(), cur.end(), l_remo_subset.begin(), l_remo_subset.end(), back_inserter(temp));
+                //     if (temp == cur) {
+                //         skip = true;
+                //         break;
+                //     }
+                // }
+                // if (skip) continue;
 
                 vector<int> l_subset;
                 set_difference(L.begin(), L.end(), l_remo_subset.begin(), l_remo_subset.end(), back_inserter(l_subset));
@@ -361,6 +361,7 @@ void print(vector<bool>& a) {
 }
 
 void Graph::iThreeStep(vector<bool>& h0, set<vector<bool>>& ans) {
+    cout << "COMING IN I THREE STEP" << endl;
     if (ans.size() == LIM) return;
     vector<int> v_diff;
     vector<int> L, R;
@@ -423,7 +424,7 @@ set<vector<bool>> Graph::iTraversal() {
 
     set<vector<bool>> ans;
     ans.insert(h0);
-    print(h0);
+    // print(h0);
     // cout << "initial here: " << h0 << endl;
     iThreeStep(h0, ans);
 
